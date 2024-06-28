@@ -4,77 +4,25 @@ import torch
 
 from ..utils import Backend
 from ..utils.model import check_and_get_model_type
-from .baichuan import BaiChuanGPTQ
 from .base import BaseGPTQModel, QuantizeConfig
-from .bloom import BloomGPTQ
-from .chatglm import ChatGLM
-from .codegen import CodeGenGPTQ
-from .cohere import CohereGPTQ
 from .dbrx import DbrxGPTQ
 from .dbrx_converted import DbrxConvertedGPTQ
-from .decilm import DeciLMGPTQ
-from .deepseek_v2 import DeepSeekV2GPTQ
 from .gemma import GemmaGPTQ
-from .gpt2 import GPT2GPTQ
 from .gpt_bigcode import GPTBigCodeGPTQ
 from .gpt_neox import GPTNeoXGPTQ
-from .gptj import GPTJGPTQ
-from .internlm import InternLMGPTQ
 from .llama import LlamaGPTQ
-from .longllama import LongLlamaGPTQ
-from .minicpm import MiniCPMGPTQ
 from .mistral import MistralGPTQ
 from .mixtral import MixtralGPTQ
-from .moss import MOSSGPTQ
-from .mpt import MPTGPTQ
-from .opt import OPTGPTQ
-from .phi import PhiGPTQ
-from .phi3 import Phi3GPTQ
-from .qwen import QwenGPTQ
-from .qwen2 import Qwen2GPTQ
-from .qwen2_moe import Qwen2MoeGPTQ
-from .rw import RWGPTQ
-from .stablelmepoch import StableLMEpochGPTQ
-from .starcoder2 import Starcoder2GPTQ
-from .xverse import XverseGPTQ
-from .yi import YiGPTQ
 
 MODEL_MAP = {
-    "bloom": BloomGPTQ,
     "gpt_neox": GPTNeoXGPTQ,
-    "gptj": GPTJGPTQ,
-    "gpt2": GPT2GPTQ,
     "llama": LlamaGPTQ,
-    "opt": OPTGPTQ,
-    "moss": MOSSGPTQ,
-    "chatglm": ChatGLM,
     "gpt_bigcode": GPTBigCodeGPTQ,
-    "codegen": CodeGenGPTQ,
-    "cohere": CohereGPTQ,
-    "RefinedWebModel": RWGPTQ,
-    "RefinedWeb": RWGPTQ,
-    "falcon": RWGPTQ,
-    "baichuan": BaiChuanGPTQ,
-    "internlm": InternLMGPTQ,
-    "qwen": QwenGPTQ,
     "mistral": MistralGPTQ,
-    "Yi": YiGPTQ,
-    "xverse": XverseGPTQ,
-    "deci": DeciLMGPTQ,
-    "stablelm_epoch": StableLMEpochGPTQ,
-    "starcoder2": Starcoder2GPTQ,
     "mixtral": MixtralGPTQ,
-    "qwen2": Qwen2GPTQ,
-    "longllama": LongLlamaGPTQ,
     "gemma": GemmaGPTQ,
-    "phi": PhiGPTQ,
-    "phi3": Phi3GPTQ,
-    "mpt": MPTGPTQ,
-    "minicpm": MiniCPMGPTQ,
-    "qwen2_moe": Qwen2MoeGPTQ,
     "dbrx": DbrxGPTQ,
     "dbrx_converted": DbrxConvertedGPTQ,
-    "deepseek_v2": DeepSeekV2GPTQ,
 }
 
 at_least_one_cuda_v6 = any(torch.cuda.get_device_capability(i)[0] >= 6 for i in range(torch.cuda.device_count()))
