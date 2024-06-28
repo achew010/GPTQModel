@@ -111,6 +111,7 @@ def make_quant(
     sym: bool = True,
     use_cuda_fp16: bool = True,
     pack: bool = False,
+    trainable:bool = False,
 ) -> BaseQuantLinear:
     select_quant_linear_func = select_quant_linear_with_pack if pack else select_quant_linear
     QuantLinear = select_quant_linear_func(
@@ -165,6 +166,7 @@ def make_quant(
                     outfeatures=out_features,
                     bias=bias,
                     weight_dtype=submodule.weight.dtype,
+                    trainable=trainable,
                 )
             new_layer.device = ori_layer_device
             recurse_setattr(module, name, new_layer.to(ori_layer_device))
@@ -242,12 +244,6 @@ def select_quant_linear_with_pack(bits: int,
     desc_act: bool,
     sym: bool,
     backend: Backend, format: str, pack: bool):
-    # If Format is BitBLAS, BitBLASQuantLinear is not used during packing,
-    # and the format is converted to BitBLAS in save_quantized().
-    if format == FORMAT.BITBLAS:
-        backend = Backend.AUTO
-        format = FORMAT.GPTQ_V2
-
     QuantLinear = select_quant_linear(
         bits=bits,
         group_size=group_size,

@@ -40,6 +40,7 @@ class FORMAT:
     GPTQ_V2 = "gptq_v2"
     MARLIN = "marlin"
     BITBLAS = "bitblas"
+    TRITON = "triton"
 
 
 # quant methods
