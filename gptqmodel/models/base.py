@@ -930,7 +930,6 @@ class BaseGPTQModel(nn.Module):
                 format=quantize_config.format,
                 use_cuda_fp16=use_cuda_fp16,
                 desc_act=quantize_config.desc_act,
-                trainable=True,
             )
             model.tie_weights()
 

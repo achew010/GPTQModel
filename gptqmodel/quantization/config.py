@@ -17,7 +17,6 @@ logger.setLevel(logging.INFO)
 
 FORMAT_FIELD_CODE = "format"
 FORMAT_FIELD_JSON = "checkpoint_format"
-FORMAT_FIELD_COMPAT_MARLIN = "is_marlin_format"
 QUANT_METHOD_FIELD = "quant_method"
 QUANT_CONFIG_FILENAME = "quantize_config.json"
 QUANT_CONFIG_FILENAME_COMPAT = [QUANT_CONFIG_FILENAME, "quant_config.json", "config.json"]
@@ -38,8 +37,7 @@ class FORMAT:
     GPTQ = "gptq"
     # v2 format fixed sym = False quantization
     GPTQ_V2 = "gptq_v2"
-    MARLIN = "marlin"
-    BITBLAS = "bitblas"
+    TRITON = "triton"
 
 
 # quant methods
@@ -51,8 +49,7 @@ QUANT_METHOD_FORMAT_MAPPING = {
     QUANT_METHOD.GPTQ: {
         FORMAT.GPTQ,
         FORMAT.GPTQ_V2,
-        FORMAT.MARLIN,
-        FORMAT.BITBLAS,
+        FORMAT.TRITON,
     },
 }
 
@@ -163,7 +160,7 @@ class QuantizeConfig():
     @classmethod
     # normalize quant config for compat and also performs validation
     def from_quant_config(cls, quantize_cfg, format: str = None):
-        valid_formats = {FORMAT.GPTQ, FORMAT.GPTQ_V2, FORMAT.MARLIN, FORMAT.BITBLAS}
+        valid_formats = {FORMAT.GPTQ, FORMAT.GPTQ_V2}
         format_auto_inferred = False
         # compat: format can be passed in via from_quantized() if field missing from json
         if format:
@@ -192,23 +189,17 @@ class QuantizeConfig():
             if key == FORMAT_FIELD_JSON:
                 val = val.lower()
 
-                if val in {FORMAT.GPTQ, FORMAT.GPTQ_V2, FORMAT.MARLIN, FORMAT.BITBLAS}:
+                if val in {FORMAT.GPTQ, FORMAT.GPTQ_V2}:
                     normalized[key] = val
                 else:
                     raise ValueError(f"Unknown quantization format: {val}.")
             elif key == QUANT_METHOD_FIELD:
                 val = val.lower()
                 # compat: some hf models use quant_method=marlin or bitblas
-                if val == FORMAT.MARLIN:
-                    normalized[FORMAT_FIELD_CODE] = FORMAT.MARLIN
-                elif val == FORMAT.BITBLAS:
-                    normalized[FORMAT_FIELD_CODE] = FORMAT.BITBLAS
-                elif val not in {QUANT_METHOD.GPTQ}:
+                if val not in {QUANT_METHOD.GPTQ}:
                     raise ValueError(f"Unknown quantization method: {val}.")
                 else:
                     normalized[QUANT_METHOD_FIELD] = val
-            elif key == FORMAT_FIELD_COMPAT_MARLIN and val:
-                normalized[FORMAT_FIELD_CODE] = FORMAT.MARLIN
             elif key in field_names:
                 normalized[key] = val
             else:
@@ -216,10 +207,6 @@ class QuantizeConfig():
 
         if format_auto_inferred:
             logger.info(f"`{FORMAT_FIELD_JSON}` is missing from the quantization configuration and is automatically inferred to {normalized[FORMAT_FIELD_CODE]}")
-
-        if normalized[FORMAT_FIELD_CODE] in {FORMAT.BITBLAS}:
-            # AWQ and Marlin do not reorder the rows.
-            normalized["desc_act"] = False
 
         if "sym" not in normalized:
             logger.warning(
